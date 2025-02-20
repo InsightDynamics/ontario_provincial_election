@@ -24,24 +24,46 @@
     <script src="https://unpkg.com/leaflet-geojson-selector"></script>
 
     <script>
-        // Initialize the map
-        var map = L.map('map').setView([51.2538, -85.3232], 6); // Centered on Ontario
+    // Initialize the map
+    var map = L.map('map').setView([51.2538, -85.3232], 6); // Centered on Ontario
 
-        // Add a tile layer (background map)
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors'
-        }).addTo(map);
+    // Add a tile layer (background map)
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
 
-        // Load and display the GeoJSON data
-        fetch('ELECTORAL_DISTRICT.geojson')
-            .then(response => response.json())
-            .then(data => {
-                L.geoJSON(data, {
-                    onEachFeature: function (feature, layer) {
-                        layer.bindPopup("<h3>" + feature.properties.name + "</h3>");
+    // Load and display the GeoJSON data
+    fetch('ELECTORAL_DISTRICT.geojson')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("GeoJSON file not found or unable to load.");
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log("GeoJSON Loaded Successfully:", data); // Debugging log
+
+            // Create GeoJSON layer
+            var geoLayer = L.geoJSON(data, {
+                style: {
+                    color: "blue",
+                    weight: 2,
+                    opacity: 0.6
+                },
+                onEachFeature: function (feature, layer) {
+                    if (feature.properties) {
+                        layer.bindPopup("<h3>" + (feature.properties.name || "Unknown District") + "</h3>");
                     }
-                }).addTo(map);
+                }
             });
-    </script>
+
+            geoLayer.addTo(map);
+            map.fitBounds(geoLayer.getBounds()); // Adjust zoom to fit all districts
+        })
+        .catch(error => {
+            console.error("Error loading GeoJSON:", error);
+        });
+</script>
+
 </body>
 </html>
