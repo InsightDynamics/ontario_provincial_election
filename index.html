@@ -33,7 +33,7 @@
         }).addTo(map);
 
         // Load and display the GeoJSON data
-        fetch('electoral_district.geojson')
+        fetch('ELECTORAL_DISTRICT.geojson')
             .then(response => response.json())
             .then(data => {
                 L.geoJSON(data, {
